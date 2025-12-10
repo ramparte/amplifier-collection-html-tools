@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON to YAML Converter</title>
+    
+    <!-- Load js-yaml from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    
+    <style>
+        /* Clean, functional design with system fonts */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            line-height: 1.6;
+            background: #f5f5f5;
+        }
+        
+        /* Header styling */
+        h1 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        p.subtitle {
+            color: #666;
+            margin-top: 0;
+            margin-bottom: 2rem;
+        }
+        
+        /* Main container */
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Input/Output sections */
+        .section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .section label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        /* Textarea styling */
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 0.75rem;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 0.9rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+        
+        /* Button styling */
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        
+        button:hover {
+            background: #0052a3;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        button.secondary {
+            background: #6c757d;
+        }
+        
+        button.secondary:hover {
+            background: #5a6268;
+        }
+        
+        /* Alert messages */
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .alert.error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+        
+        .alert.success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            textarea {
+                min-height: 150px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+        
+        /* Footer styling */
+        footer {
+            margin-top: 2rem;
+            padding: 1rem;
+            text-align: center;
+            opacity: 0.6;
+            font-size: 0.85em;
+        }
+        
+        footer a {
+            color: inherit;
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>JSON to YAML Converter</h1>
+    <p class="subtitle">Convert JSON to YAML format instantly in your browser</p>
+    
+    <div class="container">
+        <!-- Alert messages -->
+        <div id="error" class="alert error"></div>
+        <div id="success" class="alert success"></div>
+        
+        <!-- JSON Input -->
+        <div class="section">
+            <label for="jsonInput">JSON Input</label>
+            <textarea 
+                id="jsonInput" 
+                placeholder='{"name": "Example", "version": "1.0.0", "features": ["simple", "fast", "reliable"]}'
+            ></textarea>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="button-group">
+            <button id="convertBtn" onclick="convertToYAML()">Convert to YAML</button>
+            <button class="secondary" onclick="clearAll()">Clear All</button>
+        </div>
+        
+        <!-- YAML Output -->
+        <div class="section">
+            <label for="yamlOutput">YAML Output</label>
+            <textarea id="yamlOutput" readonly placeholder="YAML output will appear here..."></textarea>
+        </div>
+        
+        <!-- Output Actions -->
+        <div class="button-group">
+            <button id="copyBtn" onclick="copyToClipboard()">Copy to Clipboard</button>
+            <button class="secondary" onclick="downloadYAML()">Download YAML</button>
+        </div>
+    </div>
+    
+    <footer>
+        Built with ❤️ using Amplifier | <a href="https://github.com/microsoft/amplifier">Learn more</a>
+    </footer>
+    
+    <script>
+        // Convert JSON to YAML
+        function convertToYAML() {
+            const jsonInput = document.getElementById('jsonInput').value.trim();
+            const yamlOutput = document.getElementById('yamlOutput');
+            const convertBtn = document.getElementById('convertBtn');
+            
+            // Clear previous messages
+            hideMessages();
+            
+            // Validate input
+            if (!jsonInput) {
+                showError('Please enter some JSON to convert');
+                return;
+            }
+            
+            // Show loading state
+            convertBtn.disabled = true;
+            convertBtn.textContent = 'Converting...';
+            
+            try {
+                // Parse JSON
+                const jsonObj = JSON.parse(jsonInput);
+                
+                // Convert to YAML
+                const yaml = jsyaml.dump(jsonObj, {
+                    indent: 2,
+                    lineWidth: -1,
+                    noRefs: true
+                });
+                
+                // Display result
+                yamlOutput.value = yaml;
+                showSuccess('Successfully converted JSON to YAML!');
+                
+            } catch (error) {
+                showError(`Invalid JSON: ${error.message}`);
+                yamlOutput.value = '';
+            } finally {
+                // Reset button state
+                convertBtn.disabled = false;
+                convertBtn.textContent = 'Convert to YAML';
+            }
+        }
+        
+        // Copy YAML to clipboard
+        async function copyToClipboard() {
+            const yamlOutput = document.getElementById('yamlOutput').value;
+            const copyBtn = document.getElementById('copyBtn');
+            
+            if (!yamlOutput) {
+                showError('Nothing to copy. Please convert some JSON first.');
+                return;
+            }
+            
+            try {
+                // Modern clipboard API
+                await navigator.clipboard.writeText(yamlOutput);
+                
+                // Show feedback
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✓ Copied!';
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                }, 2000);
+                
+                showSuccess('YAML copied to clipboard!');
+                
+            } catch (err) {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = yamlOutput;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    showSuccess('YAML copied to clipboard!');
+                    
+                    const originalText = copyBtn.textContent;
+                    copyBtn.textContent = '✓ Copied!';
+                    setTimeout(() => {
+                        copyBtn.textContent = originalText;
+                    }, 2000);
+                } catch (err) {
+                    showError('Failed to copy to clipboard');
+                }
+                
+                document.body.removeChild(textarea);
+            }
+        }
+        
+        // Download YAML as file
+        function downloadYAML() {
+            const yamlOutput = document.getElementById('yamlOutput').value;
+            
+            if (!yamlOutput) {
+                showError('Nothing to download. Please convert some JSON first.');
+                return;
+            }
+            
+            try {
+                const blob = new Blob([yamlOutput], { type: 'text/yaml' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'output.yaml';
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showSuccess('YAML file downloaded!');
+            } catch (err) {
+                showError('Failed to download file');
+            }
+        }
+        
+        // Clear all inputs and outputs
+        function clearAll() {
+            document.getElementById('jsonInput').value = '';
+            document.getElementById('yamlOutput').value = '';
+            hideMessages();
+        }
+        
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Show success message
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Hide all messages
+        function hideMessages() {
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('success').style.display = 'none';
+        }
+        
+        // Keyboard shortcut: Ctrl/Cmd + Enter to convert
+        document.getElementById('jsonInput').addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                convertToYAML();
+            }
+        });
+        
+        // Load example JSON on page load (optional)
+        window.addEventListener('DOMContentLoaded', () => {
+            const exampleJSON = {
+                "name": "amplifier-tool",
+                "version": "1.0.0",
+                "description": "A simple JSON to YAML converter",
+                "features": [
+                    "instant conversion",
+                    "copy to clipboard",
+                    "download as file",
+                    "error handling"
+                ],
+                "metadata": {
+                    "author": "Amplifier",
+                    "license": "MIT"
+                }
+            };
+            
+            document.getElementById('jsonInput').value = JSON.stringify(exampleJSON, null, 2);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+include README.md
+include LICENSE
+recursive-include agents *.md
+recursive-include context *.md
+recursive-include templates *.html
+recursive-include docs *.md

@@ -1,0 +1,34 @@
+[project]
+name = "html-tools"
+version = "1.0.0"
+description = "Build single-file HTML tools using Simon Willison's proven patterns"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+
+authors = [
+    {name = "Amplifier Contributors"}
+]
+
+keywords = ["html", "tools", "browser", "single-file", "web"]
+
+[project.urls]
+Homepage = "https://github.com/microsoft/amplifier-collection-html-tools"
+Repository = "https://github.com/microsoft/amplifier-collection-html-tools"
+Documentation = "https://github.com/microsoft/amplifier-collection-html-tools/blob/main/README.md"
+
+[tool.amplifier.collection]
+author = "Amplifier Contributors"
+capabilities = [
+    "html-tool-generation",
+    "single-file-apps",
+    "browser-based-tools",
+    "no-build-development"
+]
+
+[project.scripts]
+html-tool = "amplifier_collection_html_tools.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
