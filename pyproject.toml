@@ -41,3 +41,7 @@ packages = ["amplifier_collection_html_tools"]
 "context" = "context"
 "templates" = "templates"
 "docs" = "docs"
+"pyproject.toml" = "pyproject.toml"
+"README.md" = "README.md"
+"LICENSE" = "LICENSE"
+"COLLECTION_SUMMARY.md" = "COLLECTION_SUMMARY.md"
