@@ -1,0 +1,16 @@
+[project]
+name = "tool-html-builder"
+version = "1.0.0"
+description = "CLI tool for generating single-file HTML tools"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+
+[project.scripts]
+html-tool = "tool_html_builder.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]

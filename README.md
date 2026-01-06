@@ -1,8 +1,8 @@
-# HTML Tools Collection for Amplifier
+# HTML Tools Bundle for Amplifier
 
 Build single-file HTML tools using Simon Willison's proven patterns for browser-based utilities - no build steps, no React, just simple HTML+CSS+JS that works by opening in a browser.
 
-## What This Collection Provides
+## What This Bundle Provides
 
 ### 🤖 The `html-tool-builder` Agent
 
@@ -33,30 +33,23 @@ html-tool "JSON to YAML converter" --output converter.html --preview
 ## Installation
 
 ```bash
-# Install the collection
-amplifier collection add git+https://github.com/microsoft/amplifier-collection-html-tools@main
+# Run directly from GitHub
+amplifier run --bundle git+https://github.com/ramparte/amplifier-bundle-html-tools@main "Build a JSON to YAML converter"
 
-# Verify installation
-amplifier collection list
-amplifier collection show html-tools
-
-# The html-tool CLI is automatically available
-html-tool --help
+# Or clone and run locally
+git clone https://github.com/ramparte/amplifier-bundle-html-tools
+amplifier run --bundle ./amplifier-bundle-html-tools/bundle.md "Build a tool"
 ```
 
 ## Quick Start
 
-### Using the Agent Directly
+### Using the Bundle
 
 ```bash
-# Start Amplifier
-amplifier
+# Build a tool via the bundle
+amplifier run --bundle html-tools "Build a CSV to JSON converter"
 
-# In chat mode, delegate to the agent
-> Use html-tool-builder to create a markdown to HTML converter
-
-# Or via command line
-amplifier run --agent html-tool-builder "Build a CSV to JSON converter"
+# The html-tool-builder agent handles assessment and generation
 ```
 
 ### Using the CLI Tool
